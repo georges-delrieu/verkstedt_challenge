@@ -6,7 +6,7 @@ The final infrastructure of this server features
 - Two shareable subnets with different availability zones
 - An application load balancer
 
-The webserver can be access through the load balancer DNS [here](http://load-balancer-1337580158.eu-west-3.elb.amazonaws.com/) 
+The webserver can be accessed through the load balancer DNS [here](http://load-balancer-1337580158.eu-west-3.elb.amazonaws.com/) 
 
 The full architecture is detailed below:
 ![my_image](schematic_verkstedt.png)
