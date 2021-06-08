@@ -1,2 +1,2 @@
-# verkstedt_challenge
-![What is this](schematic_verkstedt.svg)
+# Verkstedt challenge
+![my_image](schematic_verkstedt.svg)
