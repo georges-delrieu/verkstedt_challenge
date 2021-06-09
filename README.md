@@ -7,11 +7,13 @@ The final infrastructure of this server features
 - An application load balancer
 
 The full architecture is detailed below:
+
+
 ![my_image](schematic_verkstedt.png)
 
 
 ## Replayability
-To replicate this build, you need to meet three requirements
+To replicate this build, you need to meet three requirements:
 - Having Terraform installed and in path
 - Having Docker installed and in path
 - An AWS account, and the CLI installed and in path
