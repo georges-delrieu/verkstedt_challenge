@@ -210,6 +210,7 @@ resource "aws_ram_resource_share" "sharing_ec2" {
 
 }
 
+# To share the subnet  access with multiple users uncomment the chunk below:
 # resource "aws_ram_principal_association" "authorized_principal" {
 #   principal          = "111111111111" # Replace with Amazon ID of external principal
 #   resource_share_arn = aws_ram_resource_share.sharing_ec2.arn
