@@ -11,7 +11,7 @@ The full architecture is detailed below:
 
 
 ## Replayability
-To replicate this build, you need to meet two requirements
+To replicate this build, you need to meet three requirements
 - Having Terraform installed and in path
 - Having Docker installed and in path
 - An AWS account, and the CLI installed and in path
