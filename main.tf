@@ -3,14 +3,6 @@ provider "aws" {
   region  = "eu-west-3" 
 }
 
-resource "aws_ecr_repository" "verkstedt_container" {
-  name = "verkstedt-container" 
-}
-
-resource "aws_ecs_cluster" "verkstedt_cluster" {
-  name = "verkstedt-cluster"
-}
-
 resource "aws_vpc" "vpc" {
     cidr_block = "10.0.0.0/24"
     enable_dns_support   = true
@@ -56,7 +48,27 @@ resource "aws_route_table_association" "route_table_association2" {
     route_table_id = aws_route_table.public.id
 }
 
+########## ECR ###########
+resource "aws_ecr_repository" "verkstedt_container" {
+  name = "gd-verkstedt-container"
+}
+
+resource "null_resource" "building_image"{
+  provisioner "local-exec" {
+  command = "aws ecr get-login-password --region eu-west-3 | docker build -t $container_name . && docker tag $container_name:latest $container_url:latest && docker push $container_url:latest"
+
+  environment = {
+  container_url = "${aws_ecr_repository.verkstedt_container.repository_url}"
+  container_name = "${aws_ecr_repository.verkstedt_container.name}"
+  }
+  }
+}
+
 ########## ECS ###########
+resource "aws_ecs_cluster" "verkstedt_cluster" {
+  name = "gd-verkstedt-cluster"
+}
+
 resource "aws_ecs_task_definition" "spinning_container" {
   family                   = "spinning_container" 
   container_definitions    = <<DEFINITION
@@ -84,7 +96,7 @@ resource "aws_ecs_task_definition" "spinning_container" {
 }
 
 resource "aws_ecs_service" "verkstedt_service" {
-  name            = "verkstedt-service"                             
+  name            = "gd-verkstedt-service"                             
   cluster         = "${aws_ecs_cluster.verkstedt_cluster.id}"             
   task_definition = "${aws_ecs_task_definition.spinning_container.arn}" 
   launch_type     = "FARGATE"
@@ -123,7 +135,7 @@ resource "aws_security_group" "service_security_group" {
 
 ########## IAM ###########
 resource "aws_iam_role" "ecsTaskExecutionRole" {
-  name               = "ecsTaskExecutionRole"
+  name               = "gd-ecsTaskExecutionRole"
   assume_role_policy = "${data.aws_iam_policy_document.assume_role_policy.json}"
 }
 
@@ -145,7 +157,7 @@ resource "aws_iam_role_policy_attachment" "ecsTaskExecutionRole_policy" {
 
 ########## ALB ###########
 resource "aws_alb" "application_load_balancer" {
-  name               = "load-balancer" 
+  name               = "gd-load-balancer" 
   load_balancer_type = "application"
   subnets = ["${aws_subnet.pub_subnet1.id}","${aws_subnet.pub_subnet2.id}"]
   security_groups = ["${aws_security_group.load_balancer_security_group.id}"]
@@ -169,11 +181,12 @@ resource "aws_security_group" "load_balancer_security_group" {
 }
 
 resource "aws_lb_target_group" "target_group" {
-  name        = "target-group"
+  name        = "gd-target-group"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
-  vpc_id      = "${aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.vpc.id}" 
+  depends_on      = [aws_alb.application_load_balancer]
   health_check {
     matcher = "200,301,302"
     path = "/"
@@ -207,3 +220,9 @@ resource "aws_ram_resource_share" "sharing_ec2" {
 #   resource_arn       = aws_subnet.pub_subnet1.arn
 #   resource_share_arn = aws_ram_resource_share.sharing_ec2.arn
 # }
+
+
+######### Output ##########
+output "load_balancer_dns" {
+  value = aws_alb.application_load_balancer.dns_name
+}
