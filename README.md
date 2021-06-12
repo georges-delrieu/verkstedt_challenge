@@ -9,7 +9,7 @@ The final infrastructure of this server features
 The full architecture is detailed below:
 
 
-![my_image](schematic_verkstedt.png)
+![my_image](schematic_verkstedt1.png)
 
 
 ## Replayability
